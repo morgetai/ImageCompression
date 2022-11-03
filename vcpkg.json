@@ -1,0 +1,8 @@
+{
+    "name": "qt",
+    "version": "1.0",
+    "dependencies": [
+        {"name": "qtbase"},
+        {"name": "qtdeclarative"}
+    ]
+}
