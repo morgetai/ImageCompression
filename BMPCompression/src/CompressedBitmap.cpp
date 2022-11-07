@@ -9,40 +9,22 @@ namespace
     constexpr int CODED_BMP_BITS_NUM = 32;
     constexpr int CODED_BMP_BYTES_SIZE = CODED_BMP_BITS_NUM / 8;
     constexpr std::array<unsigned char, 4> WHITE_PIXELS{0xff, 0xff, 0xff, 0xff};
-    constexpr std::array<unsigned char, 4> BLACK_PIXELS{0x0, 0x0, 0x0, 0x0};
+    constexpr std::array<unsigned char, 4> BLACK_PIXELS{0x00, 0x00, 0x00, 0x00};
 
     using compressed_bmp_bitset = std::bitset<CODED_BMP_BITS_NUM>;
 
-    bool EmptyLine(unsigned char *begin, unsigned char *end)
-    {
-        while (begin < end)
-        {
-            if ((*begin & *end) != 0xff)
-            {
-                return false;
-            }
-            begin += 1;
-        }
-        return true;
-    };
-
-    std::vector<unsigned char> Decode(const char* input_data, const int data_size, const int width)
+    std::vector<unsigned char> Decode(const char *input_data, const int data_size, const int width)
     {
         const std::vector<unsigned char> empty_line(width, 0xff);
-        
+
         auto data_end = std::next(input_data, data_size);
 
         std::vector<unsigned char> res;
-        for(auto data_begin = input_data; data_begin != data_end;)
+        for (auto data_begin = input_data; data_begin != data_end;)
         {
             auto colors = std::next(data_begin, 4);
-            std::bitset<32> compressed_bmp = *(reinterpret_cast<const unsigned int*>(data_begin));
-            if(compressed_bmp == 0)
-            {
-                res.insert(res.end(), empty_line.begin(), empty_line.end());
-                data_begin +=4;
-                continue;
-            }
+            std::bitset<32> compressed_bmp = *(reinterpret_cast<const unsigned int *>(data_begin));
+
             for (int i = 31; i > 0; i -= 2)
             {
                 if (!compressed_bmp[i])
@@ -59,7 +41,7 @@ namespace
                     std::advance(colors, 4);
                 }
             }
-            
+
             data_begin = colors;
         }
 
@@ -78,25 +60,14 @@ CompressedBitMap::CompressedBitMap(unsigned char *data, const int width, const i
     auto end_line = data;
 
     m_lines.resize(height * width);
-    int curr_bit_pos {31};
+    int curr_bit_pos{31};
     int cur_elem{0};
 
-    for (auto current_element = data; current_element < data + (height * width); )
+    for (auto current_element = data; current_element < data + (height * width);)
     {
-        if(current_element >= end_line)
-        {
-            end_line += width;
-            if(EmptyLine(end_line - width, end_line))
-            {
-                ++cur_elem;
-                current_element += width;
-                continue;
-            }
-        }
-
         auto uint = *reinterpret_cast<uint32_t *>(current_element);
 
-        if(curr_bit_pos < 0)
+        if (curr_bit_pos < 0)
         {
             curr_bit_pos = 31;
             ++cur_elem;
@@ -104,49 +75,41 @@ CompressedBitMap::CompressedBitMap(unsigned char *data, const int width, const i
 
         if (uint == 0xffffffff)
         {
-            curr_bit_pos -=2;
+            curr_bit_pos -= 2;
         }
-        else if (uint == 0)
+        else if (uint == 0x00000000)
         {
             auto temp = static_cast<int>(1 << curr_bit_pos);
             m_lines[cur_elem].code |= temp;
-            curr_bit_pos -=2;
+            curr_bit_pos -= 2;
         }
         else
         {
             auto temp = static_cast<int>(3 << (curr_bit_pos - 1));
-            m_lines[cur_elem].code |= temp; 
-            curr_bit_pos -=2;
+            m_lines[cur_elem].code |= temp;
+            curr_bit_pos -= 2;
 
-            m_lines[cur_elem].colors.insert(m_lines[cur_elem].colors.end(), 
-                {static_cast<unsigned char>(uint),
-                static_cast<unsigned char>(uint >> 8),
-                static_cast<unsigned char>(uint >> 16),
-                static_cast<unsigned char>(uint >> 24)});
+            m_lines[cur_elem].colors.insert(m_lines[cur_elem].colors.end(),
+                                            {static_cast<unsigned char>(uint),
+                                             static_cast<unsigned char>(uint >> 8),
+                                             static_cast<unsigned char>(uint >> 16),
+                                             static_cast<unsigned char>(uint >> 24)});
         }
 
-        current_element +=4;
-
+        current_element += 4;
     }
 
-    m_lines.erase(std::next(m_lines.begin(),cur_elem + 1), m_lines.end());
+    m_lines.erase(std::next(m_lines.begin(), cur_elem + 1), m_lines.end());
 }
 
-void CompressedBitMap::Save(std::ostream& out)
+void CompressedBitMap::Save(std::ostream &out)
 {
     out.write(reinterpret_cast<const char *>(&m_width), sizeof(int));
     out.write(reinterpret_cast<const char *>(&m_height), sizeof(int));
-    //out << '\n';
+    // out << '\n';
     const auto empty_line = 0;
-    for(auto& line : m_lines)
+    for (auto &line : m_lines)
     {
-        if(line.code == 0)
-        {
-            //write empty line
-            out.write(reinterpret_cast<const char *>(&empty_line), sizeof(int));
-            continue;
-        }
-
         const auto val = line.code.to_ulong();
         out.write(reinterpret_cast<const char *>(&val), sizeof(unsigned int));
         out.write(reinterpret_cast<const char *>(line.colors.data()), sizeof(unsigned char) * line.colors.size());
@@ -155,7 +118,7 @@ void CompressedBitMap::Save(std::ostream& out)
     out.flush();
 }
 
-BitMap CompressedBitMap::ReadCompressedFile(std::istream& in)
+BitMap CompressedBitMap::ReadCompressedFile(std::istream &in)
 {
     BitMap ret;
     in.read(reinterpret_cast<char *>(&ret.width), sizeof(int));
@@ -164,9 +127,9 @@ BitMap CompressedBitMap::ReadCompressedFile(std::istream& in)
     std::array<char, 300'000> buf{};
     in.read(buf.data(), buf.size());
 
-    if( auto readed_elems = in.gcount(); readed_elems > 10)
+    if (auto readed_elems = in.gcount(); readed_elems > 10)
     {
-        auto decoded = Decode(buf.data(), readed_elems,ret.width);
+        auto decoded = Decode(buf.data(), readed_elems, ret.width);
         ret.data.insert(ret.data.end(), decoded.begin(), decoded.end());
     }
 
