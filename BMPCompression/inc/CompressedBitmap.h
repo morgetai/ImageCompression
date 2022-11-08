@@ -10,53 +10,39 @@ struct BitMap
     std::vector<unsigned char> data;
 };
 
-class CompressedBitMap
+class BitEncoding
 {
 public:
-    CompressedBitMap(unsigned char *data, int width, int height);
-
-    void Save(std::ostream& out);
-    static BitMap ReadCompressedFile(std::istream& in);
+    static std::vector<unsigned char> Encode(const std::vector<unsigned char>& data, int width, int height);
+    static std::vector<unsigned char> Decode(const std::vector<unsigned char>& data, int width);
 
 private:
-
     struct Elem
     {
         std::bitset<32> code;
         std::vector<unsigned char> colors;
     };
-
-    std::vector<Elem> m_lines;
-    int m_width;
-    int m_height;
 };
 
-/* class BitEncoding
-{
-    public:
-    static std::vector<unsigned char> Encode();
-    static BitMap Decode();
-}
-
-template<typename Comp>
+template <typename Comp>
 class CompressedBitMapT
 {
 public:
-    CompressedBitMap(unsigned char *data, int width, int height);
-
-    void Save(std::ostream& out);
-    static BitMap ReadCompressedFile(std::istream& in);
-
-private:
-
-    struct Elem
+    enum class Option
     {
-        std::bitset<32> code;
-        std::vector<unsigned char> colors;
-    };
+        ENCODE = 0,
+        DECODE = 1
+    }
 
-    std::vector<Elem> m_data;
+    CompressedBitMapT(unsigned char *data, int width, int height);
+    CompressedBitMapT(std::istream &in);
+
+    bool Encode();
+    BitMap Decode();
+    void Save(std::ostream &out);
+private:
+    Option m_current_option;
+    std::vector<unsigned char> m_data;
     int m_width;
     int m_height;
 };
- */

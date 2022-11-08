@@ -81,7 +81,14 @@
         "thread": "cpp",
         "stack": "cpp",
         "filesystem": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "__tree": "cpp",
+        "future": "cpp",
+        "map": "cpp",
+        "condition_variable": "cpp",
+        "fstream": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp"
     },
     "C_Cpp.autocomplete": "Default"
 }
