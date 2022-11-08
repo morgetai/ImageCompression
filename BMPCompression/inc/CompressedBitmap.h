@@ -25,17 +25,17 @@ private:
 };
 
 template <typename Comp>
-class CompressedBitMapT
+class ImageCompression
 {
 public:
     enum class Option
     {
         ENCODE = 0,
         DECODE = 1
-    }
+    };
 
-    CompressedBitMapT(unsigned char *data, int width, int height);
-    CompressedBitMapT(std::istream &in);
+    ImageCompression(unsigned char *data, int width, int height);
+    ImageCompression(std::istream &in);
 
     bool Encode();
     BitMap Decode();
