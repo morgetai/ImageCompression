@@ -19,7 +19,7 @@ int main()
     cbmp.Save(ss);
     auto res = CompressedBitMap::ReadCompressedFile(ss);
 
-    assert(res == data);
+    assert(res.data == data);
 
     return 0;
 }

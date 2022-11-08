@@ -1,16 +1,28 @@
 {
     "configurations": [
         {
-            "name": "(lldb) Launch",
+            "name": "App",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Test",
+            "program": "${workspaceFolder}/build/BMPCopressionApp/BMPCompressionAPP",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build",
+            "cwd": "${workspaceFolder}/build/BMPCopressionApp",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb"
-        }
+        },
+        {   
+            "name": "Test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/BMPCompression/test/BMPCompressionTest",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/BMPCopressionApp",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }   
         ]
 }

@@ -4,8 +4,6 @@ project(BMPCompressionAlgorithm
     VERSION 1.0.0 
     LANGUAGES CXX)
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
 set (PROJECT_INCLUDES
     inc/CompressedBitmap.h)
 
