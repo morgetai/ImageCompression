@@ -17,13 +17,10 @@ int BMPCompressionApp::Run()
 {
     QQmlApplicationEngine engine;
 
-    QQmlContext* rootContext = engine.rootContext();
-    
-    QFileSystemModel *fsm = new QFileSystemModel(&engine);
-
     qmlRegisterType<FileExplorerModel>("MyPlugin", 1, 0, "FolderModel");
     qmlRegisterType<BMPCompress>("MyPlugin", 1, 0, "BMPCompress");
 
+    engine.rootContext()->setContextProperty("path", QDir::currentPath());
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
     return m_app.exec();

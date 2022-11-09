@@ -9,8 +9,8 @@ Window {
     id: root
     visible: true
     title: qsTr("BMP compressor")
-    property string rootFilesFolder: "/Users/andriihridin/Documents/Programming/ImageCompression/build"
-    property bool useListViewMode: true // retain presentation mode, shared for all panels
+    property string rootFilesFolder: path
+    property bool useListViewMode: true
     width: Style.windowDefaultSize.width
     height: Style.windowDefaultSize.height
     color: Style.windowBackgroundColor
@@ -20,20 +20,25 @@ Window {
 
     function openCMPpopup(file){
         dialog.fileselected = file
-        //cmpRec.visible = true
-        //compresspopup.open()
         dialog.open()
     }
 
+    function getFileName(path){
+        const myarr = path.split("/");
+        return myarr[myarr.length - 1]
+    }
+
     function processFile(file){
-        compressor.ReadCompressedFile(file)
-        //cmpRec.visible = true
-        //compresspopup.open()
+        var extension = (file.slice(file.lastIndexOf(".")+1))
+        if(extension == "cmp")
+            compressor.ReadCompressedFile(file)
+        else
+            compressor.CompressFile(file)
+        dialog.close()
     }
 
    Row {
         FileBrowser {
-            //id: fileBrowser
             rootfolder: rootFilesFolder
             allowOpeningFolder: true
             onFileSelected: (file) => root.openCMPpopup(file)
@@ -48,12 +53,12 @@ Window {
         id: dialog
         anchors.centerIn: parent
         width: parent.width * Style.menuWidth * 2
-        height: parent.height * Style.menuWidth * 3
+        height: parent.height * Style.menuWidth * 2
         title: "Compress/Decompress file"
         standardButtons: Dialog.Apply | Dialog.Cancel
         property string fileselected: ""
         contentItem: Text {
-                text: dialog.fileselected
+                text: getFileName(dialog.fileselected)
             }
 
         background: Rectangle{

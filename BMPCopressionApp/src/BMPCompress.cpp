@@ -38,16 +38,9 @@ void BMPCompress::CompressFile(const QString &path)
 
     connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
 
-    //connect(worker, &Worker::compressedFile, this, [](){
-       // emit this->CompressFile("");
-    //}, Qt::ConnectionType::QueuedConnection);
-
     connect(worker, &Worker::compressedFile, this, &BMPCompress::FileCompressed);
-
-    /*connect(worker, &Worker::compressedFile, this, [&worker, this](QString result)
-            {
-                worker->deleteLater();
-                emit this->FileCompressed(result); });*/
+    
+    connect(worker, &Worker::compressedFile, worker, &Worker::deleteLater);
 
     workerThread->start();
 }
@@ -64,17 +57,19 @@ void BMPCompress::ReadCompressedFile(const QString &in)
     connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
 
     connect(worker, &Worker::decompressedFile, this, &BMPCompress::FileDeCompressed);
+    
+    connect(worker, &Worker::decompressedFile, worker, &Worker::deleteLater);
 
     workerThread->start();
 }
 
 void Worker::Compress()
 {
-    QImage img(m_file_path, "BMP");
+    const auto extension = m_file_path.split('.').last();
+    QImage img(m_file_path, extension.toStdString().data());
     img.convertTo(QImage::Format::Format_Grayscale8);
 
     BitMap bit_map{img.width(), img.height(), {}};
-    int rawDataCount = 0;
     for (int y = 0; y < img.height(); y++)
     {
         auto line = img.constScanLine(y);
@@ -82,21 +77,11 @@ void Worker::Compress()
     }
 
     QString save_file_path = m_file_path + ".cmp";
-
     std::ofstream f(save_file_path.toStdString());
 
-    //std::stringstream ss;
     ImageCompression<BitEncoding> compressed(bit_map.data.data(), bit_map.width, bit_map.height);
     compressed.Encode();
     compressed.Save(f);
-
-    //QByteArray b_array(reinterpret_cast<const char*> (ss.str().c_str()), ss.str().size());
-
-    //QString save_file_path = m_file_path + ".cmp";
-    //QFile file(save_file_path);
-    //file.open(QIODevice::WriteOnly);
-    //file.write(b_array);
-    //file.close();
 
     emit compressedFile(save_file_path);
 }
@@ -124,9 +109,11 @@ void Worker::ReadCompressedFile()
         ptr += img.width();
     }
 
-    QString save_file_path = m_file_path + ".dcmp";
+    const auto file_name = m_file_path.split('.');
 
-    img.save(save_file_path, "BMP");
+    QString save_file_path = file_name.at(0) + ".dcmp." + file_name.at(1);
+
+    img.save(save_file_path, file_name.at(1).toStdString().data());
 
     emit decompressedFile(save_file_path);
 }

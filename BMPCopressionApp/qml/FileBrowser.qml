@@ -60,18 +60,6 @@ Rectangle {
         return bytes.toFixed(1) + ' ' + units[u]
     }
 
-    function openCMPpopup(file){
-        //compresspopup.fileselected = file
-        compresspopup.open()
-    }
-
-/*     Connections {
-            target: listview
-            onFolderAction: {
-                openCMPpopup(file)
-        }
-    } */
-
     FolderModel {
         id: folders
         rootFolder: fileBrowser.rootfolder
@@ -90,28 +78,6 @@ Rectangle {
         listItemSize: itemSize
         
         onOpenItem: (filePath, fileIsDir) => fileBrowser.open(filePath, fileIsDir)
-        //onFolderAction: compresspopup.open()
-    }
-
-    Popup {
-        id: compresspopup
-        property string fileselected: ""
-
-        padding: 10
-        width: parent.width * Style.menuWidth
-        height: parent.height * Style.menuWidth
-        anchors.centerIn: parent
-        contentItem: Text {
-            text: "sdasd"
-        }
-/*         Connections
-        {
-            target: fileBrowser
-            onitemSelected:{
-                fileselected = file
-                open()
-            }
-        } */
     }
 
     Rectangle {
