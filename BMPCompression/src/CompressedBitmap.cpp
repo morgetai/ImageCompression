@@ -3,6 +3,7 @@
 #include <bitset>
 #include <array>
 #include <cmath>
+#include <memory>
 
 namespace
 {
@@ -15,15 +16,13 @@ std::vector<unsigned char> BitEncoding::Encode(const std::vector<unsigned char>&
     std::vector<BitEncoding::Elem> res;
 
     // buffers
-    auto end_line = data;
-
     res.resize(height * width);
     int curr_bit_pos{31};
     int cur_elem{0};
 
-    for (auto current_element = data.begin(); current_element != data.end();)
+    for (auto current_element = data.begin(); current_element < data.end();)
     {
-        auto uint = *reinterpret_cast<const uint32_t *>(current_element.base());
+        auto uint = *reinterpret_cast<const uint32_t *>(std::addressof(*current_element));
 
         if (curr_bit_pos < 0)
         {
@@ -77,11 +76,11 @@ std::vector<unsigned char> BitEncoding::Decode(const std::vector<unsigned char>&
     const std::vector<unsigned char> empty_line(width, 0xff);
 
     std::vector<unsigned char> res;
-    for (auto data_begin = data.begin(); data_begin != data.end();)
+    for (auto data_begin = data.begin(); data_begin < data.end();)
     {
         auto colors = std::next(data_begin, 4);
-        std::bitset<32> compressed_bmp = *(reinterpret_cast<const unsigned int *>(data_begin.base()));
-
+        std::bitset<32> compressed_bmp = *(reinterpret_cast<const unsigned int *>(std::addressof(*data_begin)));
+        auto num = compressed_bmp.to_ulong();
         for (int i = 31; i > 0; i -= 2)
         {
             if (!compressed_bmp[i])
@@ -103,68 +102,4 @@ std::vector<unsigned char> BitEncoding::Decode(const std::vector<unsigned char>&
     }
 
     return res;
-}
-
-template<typename Comp>
-ImageCompression<Comp>::ImageCompression(unsigned char *data, int width, int height):
-m_current_option(Option::ENCODE),
-m_data(data, data + (width * height)),
-m_width(width),
-m_height(height)
-{
-}
-
-template<typename Comp>
-ImageCompression<Comp>::ImageCompression(std::istream &in)
-{
-    in.read(reinterpret_cast<char *>(&m_width), sizeof(int));
-    in.read(reinterpret_cast<char *>(&m_height), sizeof(int));
-
-    std::array<char, 300'000> buf{};
-    in.read(buf.data(), buf.size());
-
-    if (auto readed_elems = in.gcount(); readed_elems > 10)
-    {
-        auto decoded = Decode(buf.data(), readed_elems, m_width);
-        m_data.data.insert(m_data.data.end(), buf.begin(), std::next(buf.begin(), readed_elems));
-    }
-}
-
-template<typename Comp>
-bool ImageCompression<Comp>::Encode()
-{
-    if(m_data.empty() || m_current_option != Option::ENCODE)
-    {
-        return false;
-    }
-
-    m_data = Comp::Encode(m_data,m_width,m_height);
-
-    return true;
-}
-
-template<typename Comp>
-void ImageCompression<Comp>::Save(std::ostream &out)
-{
-    if(m_data.empty() || m_current_option != Option::ENCODE)
-    {
-        return;
-    }
-
-    out.write(reinterpret_cast<const char *>(&m_width), sizeof(int));
-    out.write(reinterpret_cast<const char *>(&m_height), sizeof(int));
-    out.write(m_data.data(), sizeof(unsigned char) * m_data.size());
-
-    out.flush();
-}
-
-template<typename Comp>
-BitMap ImageCompression<Comp>::Decode()
-{
-    if(m_data.empty() || m_current_option != Option::DECODE)
-    {
-        return {};
-    }
-
-    return {m_width, m_height, Comp::Decode(m_data,m_width)};
 }

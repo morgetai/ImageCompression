@@ -19,7 +19,7 @@
             "program": "${workspaceFolder}/build/BMPCompression/test/BMPCompressionTest",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/BMPCopressionApp",
+            "cwd": "${workspaceFolder}/build/BMPCompression",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb"
