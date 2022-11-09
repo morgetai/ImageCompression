@@ -10,7 +10,7 @@ namespace
     constexpr std::array<unsigned char, 4> BLACK_PIXELS{0x00, 0x00, 0x00, 0x00};
 }
 
-std::vector<unsigned char> BitEncoding::Encode(const std::vector<unsigned char>& data, int width, int height)
+std::vector<unsigned char> BitEncoding::Encode(const std::vector<unsigned char> &data, int width, int height)
 {
     std::vector<BitEncoding::Elem> res;
 
@@ -58,19 +58,19 @@ std::vector<unsigned char> BitEncoding::Encode(const std::vector<unsigned char>&
     std::vector<unsigned char> ret;
     std::for_each(res.begin(), std::next(res.begin(), cur_elem + 1), [&ret](const BitEncoding::Elem &elem)
                   {
-        auto u_code = elem.code.to_ulong();
+                    auto u_code = elem.code.to_ulong();
 
-        ret.insert(ret.end(), {static_cast<unsigned char>(u_code),
-                                             static_cast<unsigned char>(u_code >> 8),
-                                             static_cast<unsigned char>(u_code >> 16),
-                                             static_cast<unsigned char>(u_code >> 24)});
+                    ret.insert(ret.end(), {static_cast<unsigned char>(u_code),
+                                                        static_cast<unsigned char>(u_code >> 8),
+                                                        static_cast<unsigned char>(u_code >> 16),
+                                                        static_cast<unsigned char>(u_code >> 24)});
 
-        ret.insert(ret.end(),elem.colors.begin(), elem.colors.end()); });
+                    ret.insert(ret.end(),elem.colors.begin(), elem.colors.end()); });
 
     return ret;
 }
 
-std::vector<unsigned char> BitEncoding::Decode(const std::vector<unsigned char>& data, const int width)
+std::vector<unsigned char> BitEncoding::Decode(const std::vector<unsigned char> &data, const int width)
 {
     const std::vector<unsigned char> empty_line(width, 0xff);
 

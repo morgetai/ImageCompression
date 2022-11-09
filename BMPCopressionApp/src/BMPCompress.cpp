@@ -19,7 +19,7 @@ signals:
     void decompressedFile(QString path);
 
 public:
-explicit Worker(QString path) : m_file_path(path){};
+    explicit Worker(QString path) : m_file_path(path){};
 
 private: 
     QString m_file_path;

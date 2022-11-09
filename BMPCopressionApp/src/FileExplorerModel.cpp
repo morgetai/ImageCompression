@@ -19,8 +19,7 @@ QVariant FileExplorerModel::data(const QModelIndex &index, const int role) const
     switch (role)
     {
     case FileName:
-        return _hideExtensions ? fileInfo(index).baseName()
-                               : fileInfo(index).fileName();
+        return fileInfo(index).fileName();
     case FilePath:
         return QFileSystemModel::filePath(index);
     case FileSize:
@@ -65,11 +64,6 @@ QString FileExplorerModel::getRootFolder() const
     return rootPath();
 }
 
-bool FileExplorerModel::getHideExtensions() const
-{
-    return _hideExtensions;
-}
-
 void FileExplorerModel::setRootFolder(QString rootfolder)
 {
     if (getRootFolder() == rootfolder)
@@ -77,15 +71,6 @@ void FileExplorerModel::setRootFolder(QString rootfolder)
 
     setRootPath(rootfolder);
     emit rootFolderChanged(rootfolder);
-}
-
-void FileExplorerModel::setHideExtensions(const bool hideExtensions)
-{
-    if (_hideExtensions == hideExtensions)
-        return;
-
-    _hideExtensions = hideExtensions;
-    emit hideExtensionsChanged(_hideExtensions);
 }
 
 QHash<int, QByteArray> FileExplorerModel::roleNames() const

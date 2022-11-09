@@ -29,7 +29,7 @@ Window {
     }
 
     function processFile(file){
-        var extension = (file.slice(file.lastIndexOf(".")+1))
+        var extension = file.slice(file.lastIndexOf(".")+1)
         if(extension == "cmp")
             compressor.ReadCompressedFile(file)
         else

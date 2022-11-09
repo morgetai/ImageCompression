@@ -17,7 +17,6 @@ Rectangle {
 
     // options
     property string rootfolder: ""
-    property alias hideExtensions: folders.hideExtensions
     property bool allowOpeningFolder: false
 
     // infos

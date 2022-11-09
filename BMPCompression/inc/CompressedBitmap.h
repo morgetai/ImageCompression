@@ -28,12 +28,6 @@ template <typename Comp>
 class ImageCompression
 {
 public:
-    enum class Option
-    {
-        ENCODE = 0,
-        DECODE = 1
-    };
-
     ImageCompression(unsigned char *data, int width, int height);
     ImageCompression(std::istream &in);
 
@@ -42,6 +36,12 @@ public:
     void Save(std::ostream &out);
 
 private:
+    enum class Option
+    {
+        ENCODE = 0,
+        DECODE = 1
+    };
+
     Option m_current_option;
     std::vector<unsigned char> m_data;
     int m_width;
