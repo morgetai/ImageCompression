@@ -70,8 +70,8 @@ void BMPCompress::ReadCompressedFile(const QString &in)
 
 void Worker::Compress()
 {
-    QImage tmp(m_file_path, "BMP");
-    auto img = tmp.convertedTo(QImage::Format::Format_Mono);
+    QImage img(m_file_path, "BMP");
+    img.convertTo(QImage::Format::Format_Grayscale8);
 
     BitMap bit_map{img.width(), img.height(), {}};
     int rawDataCount = 0;
@@ -105,25 +105,22 @@ void Worker::ReadCompressedFile()
 
     std::stringstream ss;
     ss.write(content.data(), content.size());
-    //auto size = content.size();
-    //ss << '\0';
-
-    //std::ifstream f(m_file_path.toStdString());
 
     auto res = CompressedBitMap::ReadCompressedFile(ss);
 
-  
-    QImage img(res.data.data(), res.width, res.height, QImage::Format::Format_Mono);
+    QImage img(res.width, res.height, QImage::Format::Format_Grayscale8);
+
+    auto ptr = res.data.data();
+
+    for (int y = 0; y < res.height; y++)
+    {
+        memcpy(img.scanLine(y), ptr , res.width);
+        ptr += img.width();
+    }
 
     QString save_file_path = m_file_path + ".dcmp";
 
-      QFile out(save_file_path);
-      out.open(QIODevice::WriteOnly);
-    out.write(reinterpret_cast<const char *>(res.data.data()), res.height * res.width);
-    out.close();
-
-
-    //img.save(save_file_path);
+    img.save(save_file_path, "BMP");
 
     emit decompressedFile(save_file_path);
 }
