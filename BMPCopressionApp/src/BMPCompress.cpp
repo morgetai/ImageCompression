@@ -81,17 +81,22 @@ void Worker::Compress()
         bit_map.data.insert(bit_map.data.end(), line, line + img.width());
     }
 
-    std::stringstream ss;
-    CompressedBitMap compressed(bit_map.data.data(), bit_map.width, bit_map.height);
-    compressed.Save(ss);
-
-    QByteArray b_array(reinterpret_cast<const char*> (ss.str().c_str()), ss.str().size());
-
     QString save_file_path = m_file_path + ".cmp";
-    QFile file(save_file_path);
-    file.open(QIODevice::WriteOnly);
-    file.write(b_array);
-    file.close();
+
+    std::ofstream f(save_file_path.toStdString());
+
+    //std::stringstream ss;
+    ImageCompression<BitEncoding> compressed(bit_map.data.data(), bit_map.width, bit_map.height);
+    compressed.Encode();
+    compressed.Save(f);
+
+    //QByteArray b_array(reinterpret_cast<const char*> (ss.str().c_str()), ss.str().size());
+
+    //QString save_file_path = m_file_path + ".cmp";
+    //QFile file(save_file_path);
+    //file.open(QIODevice::WriteOnly);
+    //file.write(b_array);
+    //file.close();
 
     emit compressedFile(save_file_path);
 }
@@ -106,12 +111,13 @@ void Worker::ReadCompressedFile()
     std::stringstream ss;
     ss.write(content.data(), content.size());
 
-    auto res = CompressedBitMap::ReadCompressedFile(ss);
+    ImageCompression<BitEncoding> decode(ss);
+
+    auto res = decode.Decode();
 
     QImage img(res.width, res.height, QImage::Format::Format_Grayscale8);
 
     auto ptr = res.data.data();
-
     for (int y = 0; y < res.height; y++)
     {
         memcpy(img.scanLine(y), ptr , res.width);

@@ -1,6 +1,5 @@
 #include "CompressedBitmap.h"
 
-#include <bitset>
 #include <array>
 #include <cmath>
 #include <memory>

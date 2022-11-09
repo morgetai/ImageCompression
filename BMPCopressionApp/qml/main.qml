@@ -9,7 +9,7 @@ Window {
     id: root
     visible: true
     title: qsTr("BMP compressor")
-    property string rootFilesFolder: "/Users/andriihridin/Documents/Programming/TestPockerBook/build"
+    property string rootFilesFolder: "/Users/andriihridin/Documents/Programming/ImageCompression/build"
     property bool useListViewMode: true // retain presentation mode, shared for all panels
     width: Style.windowDefaultSize.width
     height: Style.windowDefaultSize.height
